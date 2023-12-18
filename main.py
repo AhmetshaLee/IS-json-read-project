@@ -32,7 +32,7 @@ toolbar_buttons = [[
 
 left_col = [
     [sg.Text('Список')],
-    [sg.Listbox(values=['user_list'], size=(35, 25), font=('None 12'), key='-LISTBOX-', enable_events=True)],
+    [sg.Listbox(values=[''], size=(35, 25), font=('None 12'), key='-LISTBOX-', enable_events=True)],
     [sg.Button('Выбрать', key='-SELECT_BTN-')]
 ]
 
@@ -56,7 +56,7 @@ main_layout = [
     [sg.Menu(menu_layout,)],
     [sg.Frame('Инструменты', toolbar_buttons)],
     [sg.Column(left_col, element_justification='c'), sg.VSeparator(), sg.Column(right_col, vertical_alignment='t')],
-    [sg.StatusBar('filename', key='-STATUS_BAR-', auto_size_text=False)]
+    [sg.StatusBar('Файл не выбран', key='-STATUS_BAR-', auto_size_text=False)]
 ]
 
 window = sg.Window('работа с JSON', main_layout, resizable=False, finalize=True)
@@ -68,7 +68,7 @@ while True:
 
     elif event == 'Создать json':
         while True:
-            FILENAME = sg.popup_get_text('Введите название для файла', default_text='users')
+            FILENAME = sg.popup_get_text('Введите название для файла', default_text='users') # сменить диалоговое окно на свое (отсуствует ru перевод)
             if FILENAME is None:
                 print('closed')
                 break
@@ -88,29 +88,38 @@ while True:
 
 
     elif event == 'Выбрать json':
-        file_path = sg.popup_get_file('Выбрать json файл', no_window=True, file_types=(('JSON Files', '*.json'),))
+        FILE_PATH = sg.popup_get_file('Выбрать json файл', no_window=True, file_types=(('JSON Files', '*.json'),))
+        if FILE_PATH == '':
+            print(f'файл не выбран')
+        else:
+            try:
+                with open(FILE_PATH, 'r', encoding='utf-8') as file:
+                    users_data = json.load(file)
+                    if len(users_data) == 0:
+                        print(f'файл пустой')
+                    else:
+                        print(f'файл что-то содержит внутри')
+                        print(f'{users_data} {type(users_data)}') # печатаем содержимое файла (проверка)
 
-        with open(file_path, 'r', encoding='utf-8') as json_data:
-            users_data = json.load(json_data)
-
-        if 'users' not in users_data:
-            users_data['users'] = []
-            print('add')
-        
-
-        users_list = [f"{user['first_name']} {user['last_name']}" for user in users_data['users']]
-        window['-LISTBOX-'].update(users_list)
-
-        with open(file_path, 'r+', encoding='utf-8') as file:
-            json.dump(users_data, file, indent=4, ensure_ascii=False)
+                    if isinstance(users_data.get('users'), list) and 'users' in users_data:
+                        if len(users_data['users']) > 0:
+                            users_list = [f"{user['name']} {user['surname']}" for user in users_data['users']]
+                            window['-LISTBOX-'].update(values=users_list)
+                        else:
+                            window['-LISTBOX-'].update(values=['Список пользователей пуст'])
+                    else:
+                        sg.popup(f'Файл не содержит поля [users]')
+                        
+            except json.JSONDecodeError:
+                sg.popup(f'Неверный формат файла JSON!')
 
 
     elif event == '-SELECT_BTN-':
 
         text_inputs = {
-        'first_name': window['-NAME-'],
-        'last_name': window['-SURNAME-'],
-        'birth_date': window['-BIRTHDATE-'],
+        'name': window['-NAME-'],
+        'surname': window['-SURNAME-'],
+        'birth_date': window['-BIRTH_DATE-'],
         }
 
         selected_users = values['-LISTBOX-']
