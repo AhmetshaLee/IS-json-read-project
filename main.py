@@ -3,88 +3,106 @@ import json
 
 sg.theme('GrayGrayGray')
 
-def display_edit_mode():
-    window['-ADD-'].update(disabled=True)
-    window['-REMOVE-'].update(disabled=True)
+def toggle_info_fields(window,  status):
+    for key in inputText_keys:
+        window[key].update(disabled=status)
 
-    window['-NAME-'].update(disabled=False)
-    window['-SURNAME-'].update(disabled=False)
-    window['-BIRTH_DATE-'].update(disabled=False)
 
-def display_save_mode():
-    window['-ADD-'].update(disabled=True)
-    window['-REMOVE-'].update(disabled=True)
+def display_add_edit_mode(window, button, file_path):
+    if not file_path: 
+        sg.popup('Чтобы начать работать, выберите JSON файл!', title='Ошибка') 
+        return
+    if button == '-ADD-':
+        window['-EDIT-'].update(disabled=True)
+    elif button == '-EDIT-':
+        window['-ADD-'].update(disabled=True)
 
-    window['-NAME-'].update(disabled=False)
-    window['-SURNAME-'].update(disabled=False)
-    window['-BIRTH_DATE-'].update(disabled=False)
+    window['-SAVE-'].update(disabled=False)
+    toggle_info_fields(window, False)
 
-def display_read_only():
-    input_values = [
-        '-REMOVE-',
-        '-SAVE-',
 
-        '-NAME-',
-        '-SURNAME-',
-        '-PATRONYMIC-',
-        '-BIRTH_DATE-',
-        '-BIRTH_PLACE-',
-        '-LIVE_PLACE-',
-        '-GENDER-',
-        '-MARITAL-',
-        '-CHILD_INFO-',
-        '-PASSPORT-',
-        '-INN-',
-        '-PHONE-',
-        '-EMAIL-'
-    ]
-    for value in input_values:
-        window[value].update(disabled=True)
+# def display_edit_mode():
+#     window['-ADD-'].update(disabled=True)
+#     window['-REMOVE-'].update(disabled=True)
+
+#     window['-NAME-'].update(disabled=False)
+#     window['-SURNAME-'].update(disabled=False)
+#     window['-BIRTH_DATE-'].update(disabled=False)
+
+# def display_save_mode():
+#     window['-ADD-'].update(disabled=True)
+#     window['-REMOVE-'].update(disabled=True)
+
+#     window['-NAME-'].update(disabled=False)
+#     window['-SURNAME-'].update(disabled=False)
+#     window['-BIRTH_DATE-'].update(disabled=False)
+
+# def display_read_only():
+#     input_values = [
+#         '-REMOVE-',
+#         '-SAVE-',
+
+#         '-NAME-',
+#         '-SURNAME-',
+#         '-PATRONYMIC-',
+#         '-BIRTH_DATE-',
+#         '-BIRTH_PLACE-',
+#         '-LIVE_PLACE-',
+#         '-GENDER-',
+#         '-MARITAL-',
+#         '-CHILD_INFO-',
+#         '-PASSPORT-',
+#         '-INN-',
+#         '-PHONE-',
+#         '-EMAIL-'
+#     ]
+#     for value in input_values:
+#         window[value].update(disabled=True)
 
 menu_layout = [
     ['&Действие', ['Создать json', 'Выбрать json']]
 ]
 
 toolbar_buttons = [[
-    sg.Button('ADD', pad=(0,0), key='-ADD-'),
-    sg.Button('EDIT', pad=(0,0), key='-EDIT-'),
-    sg.Button('SAVE', pad=(0,0), key='-SAVE-'),
-    sg.Button('REMOVE', pad=(0,0), key='-REMOVE-'),
+    sg.Button('Добавить', pad=(0,0), key='-ADD-'),
+    sg.Button('Редактировать', pad=(0,0), key='-EDIT-'),
+    sg.Button('Сохранить', pad=(0,0), key='-SAVE-', disabled=True),
+    sg.Button('Удалить', pad=(0,0), key='-REMOVE-', disabled=True),
 ]]
 
 left_col = [
     [sg.Text('Список')],
     [sg.Listbox(values=[''], size=(35, 25), font=('None 12'), key='-LISTBOX-', enable_events=True)],
-    [sg.Button('Выбрать', key='-SELECT_BTN-')]
+    [sg.Button('Выбрать', key='-SELECT_BTN-', disabled=True)]
 ]
 
 right_col = [
-    [sg.Text('Фамилия'), sg.Push(), sg.InputText(size=(30,1), key='-SURNAME-')],
-    [sg.Text('Имя'), sg.Push(), sg.InputText(size=(30,1), key='-NAME-')],
-    [sg.Text('Отчество'), sg.Push(), sg.InputText(size=(30,1), key='-PATRONYMIC-')],
-    [sg.Text('Дата рождения'), sg.Push(), sg.InputText(size=(30,1), key='-BIRTH_DATE-')],
-    [sg.Text('Место рождения'), sg.Push(), sg.InputText(size=(30,1), key='-BIRTH_PLACE-')],
-    [sg.Text('Место фактического проживания'), sg.Push(), sg.InputText(size=(30,1), key='-LIVE_PLACE-')],
-    [sg.Text('Пол'), sg.Push(), sg.Combo(['Мужской', 'Женский'], size=(28,1),key='-GENDER-')],
-    [sg.Text('Семейное положение'), sg.Push(), sg.Combo(['Женат', 'Замужем', '———'], size=(28,1),key='-MARITAL-')],
-    [sg.Text('Сведения о детях'), sg.Push(), sg.Combo(['Присутствуют', 'Нет'], size=(28,1),key='-CHILD_INFO-')],
-    [sg.Text('Паспорт (серия и номер)'), sg.Push(), sg.InputText(size=(30,1), key='-PASSPORT-')],
-    [sg.Text('ИНН'), sg.Push(), sg.InputText(size=(30,1), key='-INN-')],
-    [sg.Text('Номер телефона'), sg.Push(), sg.InputText(size=(30,1), key='-PHONE-')],
-    [sg.Text('E-mail (Почта)'), sg.Push(), sg.InputText(size=(30,1), key='-EMAIL-')],
+    [sg.Text('Фамилия'), sg.Push(), sg.InputText(size=(30,1), key='-SURNAME-', disabled=True)],
+    [sg.Text('Имя'), sg.Push(), sg.InputText(size=(30,1), key='-NAME-', disabled=True)],
+    [sg.Text('Отчество'), sg.Push(), sg.InputText(size=(30,1), key='-PATRONYMIC-', disabled=True)],
+    [sg.Text('Дата рождения'), sg.Push(), sg.InputText(size=(30,1), key='-BIRTH_DATE-', disabled=True)],
+    [sg.Text('Место рождения'), sg.Push(), sg.InputText(size=(30,1), key='-BIRTH_PLACE-', disabled=True)],
+    [sg.Text('Место фактического проживания'), sg.Push(), sg.InputText(size=(30,1), key='-LIVE_PLACE-', disabled=True)],
+    [sg.Text('Пол'), sg.Push(), sg.Combo(['Мужской', 'Женский'], size=(28,1),key='-GENDER-', disabled=True)],
+    [sg.Text('Семейное положение'), sg.Push(), sg.Combo(['Женат', 'Замужем', '———'], size=(28,1),key='-MARITAL-', disabled=True)],
+    [sg.Text('Сведения о детях'), sg.Push(), sg.Combo(['Присутствуют', 'Нет'], size=(28,1),key='-CHILD_INFO-', disabled=True)],
+    [sg.Text('Паспорт (серия и номер)'), sg.Push(), sg.InputText(size=(30,1), key='-PASSPORT-', disabled=True)],
+    [sg.Text('ИНН'), sg.Push(), sg.InputText(size=(30,1), key='-INN-', disabled=True)],
+    [sg.Text('Номер телефона'), sg.Push(), sg.InputText(size=(30,1), key='-PHONE-', disabled=True)],
+    [sg.Text('E-mail (Почта)'), sg.Push(), sg.InputText(size=(30,1), key='-EMAIL-', disabled=True)],
 ]
 
 main_layout = [
     [sg.Menu(menu_layout,)],
     [sg.Frame('Инструменты', toolbar_buttons)],
     [sg.Column(left_col, element_justification='c'), sg.VSeparator(), sg.Column(right_col, vertical_alignment='t')],
-    [sg.StatusBar('Файл не выбран', key='-STATUS_BAR-', auto_size_text=False)]
+    [sg.StatusBar('Файл не выбран', key='-STATUS_BAR-', justification='l', auto_size_text=False)]
 ]
 
-window = sg.Window('работа с JSON', main_layout, resizable=False, finalize=True)
+window = sg.Window('Работа с JSON', main_layout, resizable=False, finalize=True)
 
 FILE_PATH = None
-display_read_only()
+inputText_keys = [row[2].Key for row in right_col]
 
 while True:
     event, values = window.read()
@@ -94,7 +112,7 @@ while True:
     elif event == 'Создать json':
 
         while True:
-            FILENAME = sg.popup_get_text('Введите название для файла', default_text='users') # сменить диалоговое окно на свое (отсуствует ru перевод)
+            FILENAME = sg.popup_get_text('Введите название для файла', default_text='users', title='Новый файл') # сменить диалоговое окно на свое (отсуствует ru перевод)
             if FILENAME is None:
                 print('closed')
                 break
@@ -155,21 +173,14 @@ while True:
             input_elem.update(users_data['users'][user_index][key])
 
 
-    elif event == '-ADD-':
-        # позже добавить в виде функций смены режимов просмотра
-        if not FILE_PATH: 
-            sg.popup('Чтобы начать добавлять данные, выберите JSON файл!', title='Ошибка') 
-        else: 
-            print('вызов режима добавления')
+    elif event in ['-ADD-', '-EDIT-']:
 
-
-    elif event == '-EDIT-':
-        display_edit_mode()
+        display_add_edit_mode(window, event, FILE_PATH)
 
 
     elif event == '-SAVE-':
-        window['-ADD-'].update(disabled=False)
-        window['-REMOVE-'].update(disabled=False)
+        pass
+        # НАДО тут заканчивать с сохранением и переключением режимов
 
 window.close()
 
